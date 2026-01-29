@@ -4,7 +4,7 @@ This repository contains the infrastructure automation code for the AirTrail app
 
 ## 📖 About the Project
 
-The goal of this project is to automate the lifecycle of the AirTrail web application—a flight tracking and history service—on the cloud. 
+The goal of this project is to automate the lifecycle of the AirTrail web application which is a flight tracking and history service on the cloud. 
 
 **Context & Objectives:**
 - **Zero-Touch Automation**: Installs and configures the entire stack (infrastructure, database, application, monitoring) with minimal manual intervention.
