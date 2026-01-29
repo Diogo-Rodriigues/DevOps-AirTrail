@@ -1,0 +1,61 @@
+- name: Create a Deployment for AirTrail
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ lookup('template', 'deployment_airtrail.yml') | from_yaml }}"
+    wait: true
+
+- name: Create Horizontal Pod Autoscaler for AirTrail
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ lookup('template', 'hpa_airtrail.yml') | from_yaml }}"
+
+- name: Create a service for exposing AirTrail (LoadBalancer)
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ lookup('template', 'service_airtrail.yml') | from_yaml }}"
+    wait: true
+
+# 1. Esperar até que o IP exista (Retry Loop)
+- name: Wait for LoadBalancer IP to be assigned
+  kubernetes.core.k8s_info:
+    kind: Service
+    name: airtrail-service
+    namespace: "{{ namespace | default('default') }}"
+  register: lb_status
+  until: >
+    lb_status.resources | length > 0 and
+    lb_status.resources[0].status.loadBalancer.ingress is defined and
+    lb_status.resources[0].status.loadBalancer.ingress | length > 0
+  retries: 30
+  delay: 10
+
+# 2. Definir as variáveis (agora é seguro porque o IP existe)
+- name: Set IP facts in memory
+  ansible.builtin.set_fact:
+    # Variável auxiliar
+    airtrail_app_ip: "{{ lb_status.resources[0].status.loadBalancer.ingress[0].ip }}"
+    airtrail_app_port: 80
+    #  Atualiza as variáveis que o teste vai usar AGORA
+    app_ip: "{{ lb_status.resources[0].status.loadBalancer.ingress[0].ip }}"
+    app_port: 80
+
+
+# 3. Atualizar Inventário 
+- name: Update 'app_ip' persistently in inventory/gcp.yml
+  ansible.builtin.lineinfile:
+    path: "inventory/gcp.yml"
+    regexp: '^\s*app_ip:'
+    line: '    app_ip: "{{ airtrail_app_ip }}"'
+    state: present
+
+- name: Update 'app_port' persistently in inventory/gcp.yml
+  ansible.builtin.lineinfile:
+    path: "inventory/gcp.yml"
+    regexp: '^\s*app_port:'
+    line: '    app_port: "{{ airtrail_app_port }}"'
+    state: present
+
+- name: Re-apply Deployment to update ORIGIN environment variable
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ lookup('template', 'deployment_airtrail.yml') | from_yaml }}"

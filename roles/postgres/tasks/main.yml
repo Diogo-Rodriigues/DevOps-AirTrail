@@ -1,0 +1,39 @@
+# 1. Criação do PVC para a Base de Dados
+- name: Create a PVC for PostgreSQL
+  kubernetes.core.k8s:
+    definition: "{{ lookup('template', 'pvc_postgres.yml') | from_yaml }}" 
+    state: present
+    wait: true
+  
+# 2. Criação do Deployment (Pods) do PostgreSQL
+- name: Create a Deployment for PostgreSQL
+  kubernetes.core.k8s:
+    definition: "{{ lookup('template', 'deployment_postgres.yml') | from_yaml }}" 
+    state: present
+    wait: true
+    wait_timeout: 180
+
+# 3. Criação do Service ClusterIP para o PostgreSQL
+- name: Create a service for exposing PostgreSQL internally
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ lookup('template', 'service_postgres.yml') | from_yaml }}" 
+    wait: true
+
+# 4. Aguardar que o Pod do PostgreSQL seja criado e esteja disponível
+- name: Wait until PostgreSQL Pod is Ready (Initialisation Complete)
+  kubernetes.core.k8s_info:
+    kind: Pod
+    namespace: default
+    label_selectors:
+      - app=postgres 
+  register: pod_status
+  until: 
+    # Verifica se existe pelo menos 1 Pod...
+    - pod_status.resources | length > 0
+    # ...E se a condição 'Ready' desse Pod é 'True'
+    - pod_status.resources[0].status.conditions | selectattr('type', 'equalto', 'Ready') | map(attribute='status') | list | join == "True"
+  retries: 60 # Tentar 60 vezes
+  delay: 10   # A cada 10 segundos (total de 10 minutos de espera)
+
+

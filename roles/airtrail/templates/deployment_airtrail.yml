@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airtrail-deployment
+  labels:
+    app: airtrail
+  namespace: "{{ namespace | default('default') }}"
+spec:
+  selector:
+    matchLabels:
+      app: airtrail
+  template:
+    metadata:
+      labels:
+        app: airtrail
+    spec:
+      containers:
+      - name: airtrail
+        image: "{{ airtrail_image }}"
+        resources:
+          requests:
+            cpu: "150m"
+            memory: "256Mi"
+          limits:
+            cpu: "750m"
+            memory: "512Mi"
+        ports:
+        - containerPort: 3000 
+        env:
+        - name: DB_URL
+          value: "postgres://{{ db_username }}:{{ db_password }}@{{ db_host }}:5432/{{ db_name }}"
+        - name: DATABASE_URL 
+          value: "postgres://{{ db_username }}:{{ db_password }}@{{ db_host }}:5432/{{ db_name }}"
+        - name: HOST
+          value: "0.0.0.0"
+        - name: PORT
+          value: "3000"
+        - name: ORIGIN
+          value: "http://{{ app_ip }}:{{ app_port }}"
+        
+  

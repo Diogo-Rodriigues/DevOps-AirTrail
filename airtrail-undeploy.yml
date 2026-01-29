@@ -1,0 +1,30 @@
+- name: "Desinstalar a aplicação AirTrail"
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    # Por defeito, NÃO apaga os dados (segurança)
+    delete_data: false
+    # Define o namespace se necessário
+    namespace: default
+
+  tasks:
+    # 1. Remover primeiro a Aplicação Web
+    - name: Undeploy AirTrail components
+      include_role:
+        name: airtrail
+        tasks_from: undeploy
+
+    # 2. Remover depois a Base de Dados
+    - name: Undeploy PostgreSQL components
+      include_role:
+        name: postgres
+        tasks_from: undeploy
+
+    # 3. Mensagem final informativa
+    - name: Display Undeploy Status
+      debug:
+        msg: 
+          - "A aplicação e a base de dados foram paradas."
+          - "Dados persistentes apagados? {{ delete_data | bool }}"
+          - "(Para apagar dados, corre: ansible-playbook airtrail-undeploy.yml -e delete_data=true)"

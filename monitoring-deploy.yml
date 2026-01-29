@@ -1,0 +1,7 @@
+- name: "Deploy Elastic Stack Monitoring"
+  hosts: localhost
+  gather_facts: false
+  
+  roles:
+    - role: monitoring
+      tags: [ 'monitoring']

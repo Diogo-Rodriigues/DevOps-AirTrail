@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: airtrail-service
+  labels:
+    app: airtrail
+  namespace: "{{ namespace | default('default') }}"
+spec:
+  type: LoadBalancer
+  selector:
+    app: airtrail
+  ports:
+    - port: 80         # Porta Pública (Browser)
+      targetPort: 3000 

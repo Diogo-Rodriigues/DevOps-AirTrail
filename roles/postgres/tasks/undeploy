@@ -1,0 +1,22 @@
+- name: Remove PostgreSQL Service
+  kubernetes.core.k8s:
+    kind: Service
+    name: "{{ db_host | default('postgres-db') }}" 
+    namespace: "{{ namespace | default('default') }}"
+    state: absent
+
+- name: Remove PostgreSQL Deployment
+  kubernetes.core.k8s:
+    kind: Deployment
+    name: postgres-deployment
+    namespace: "{{ namespace | default('default') }}"
+    state: absent
+
+- name: Remove PostgreSQL PVC (DATA LOSS WARNING)
+  kubernetes.core.k8s:
+    kind: PersistentVolumeClaim
+    name: "{{ pvc_name | default('postgres-pvc') }}"
+    namespace: "{{ namespace | default('default') }}"
+    state: absent
+
+  when: delete_data | default(false) | bool

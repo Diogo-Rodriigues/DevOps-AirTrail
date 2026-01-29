@@ -1,0 +1,16 @@
+# Create different dashboards
+- name: Create dashboard with JSON
+  command: gcloud monitoring dashboards --project="{{ gcp_project}}" create --config-from-file='{{ dashboards_files }}' #{{ item }}'
+  # loop: '{{ dashboards_files }}'
+
+# Check Dashboards where created
+- name: List dashboards created
+  command: gcloud monitoring dashboards --project="{{ gcp_project}}" list
+  register: dashboard_list
+
+- debug: msg='{{ dashboard_list }}'
+
+
+
+# - name: Delete Dashboard
+#   shell: gcloud monitoring dashboards delete name_dashboard

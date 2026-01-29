@@ -1,0 +1,20 @@
+- name: Remove AirTrail Service (LoadBalancer)
+  kubernetes.core.k8s:
+    kind: Service
+    name: airtrail-service  
+    namespace: "{{ namespace | default('default') }}"
+    state: absent
+
+- name: Remove AirTrail hpa
+  kubernetes.core.k8s:
+    kind: HorizontalPodAutoscaler
+    name: airtrail-hpa
+    namespace: "{{ namespace | default('default') }}"
+    state: absent
+
+- name: Remove AirTrail Deployment
+  kubernetes.core.k8s:
+    kind: Deployment
+    name: airtrail-deployment 
+    namespace: "{{ namespace | default('default') }}"
+    state: absent

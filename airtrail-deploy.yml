@@ -1,0 +1,13 @@
+
+- name: "Instalar e configurar Airtrail "
+  hosts: localhost
+  gather_facts: false
+  roles:
+    - role: postgres
+      tags: ["postgres"]
+    - role: airtrail
+      tags: ["airtrail"]
+
+
+
+      

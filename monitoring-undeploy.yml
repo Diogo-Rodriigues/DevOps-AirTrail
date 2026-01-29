@@ -1,0 +1,19 @@
+- name: "Remove Google Cloud Monitoring Dashboards"
+  hosts: localhost
+  gather_facts: false
+  vars_files:
+    - inventory/gcp.yml
+
+  tasks:
+    - name: Get list of existing dashboards
+      command: gcloud monitoring dashboards list --project="{{ gcp_project }}" --format="value(name)"
+      register: dashboard_ids
+
+    - name: Delete each dashboard found
+      command: gcloud monitoring dashboards delete {{ item }} --project="{{ gcp_project }}" --quiet
+      loop: "{{ dashboard_ids.stdout_lines }}"
+      when: dashboard_ids.stdout_lines | length > 0
+
+    - name: Confirm removal
+      debug:
+        msg: "All dashboards associated with project {{ gcp_project }} have been removed."

@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+  labels:
+    app: postgres
+    tier: database
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: postgres
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: postgres
+        tier: database
+    spec:
+      containers:
+      - name: postgres-container
+        image: "{{ db_image }}" #postgres:16 # Imagem do PostgreSQL
+        env: 
+        - name: POSTGRES_DB
+          value: "{{ db_name }}" #airtraildb
+        - name: POSTGRES_USER
+          value: "{{ db_username }}" #airtrail_user
+        - name: POSTGRES_PASSWORD
+          value: "{{ db_password }}" #airtrail_pass 
+        
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata 
+        
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        - name: postgres-persistent-storage
+          mountPath: /var/lib/postgresql/data # Caminho de dados do Postgres
+      securityContext:
+        fsGroup: 1000 # Ajuda a garantir permissões de escrita (RWX)
+      volumes:
+      - name: postgres-persistent-storage
+        persistentVolumeClaim:
+          claimName: "{{ pvc_name }}" # Referência ao PVC criado
