@@ -1,10 +1,12 @@
-# AirTrail Operations
+# DevOps-AirTrail 
 
 This repository contains the infrastructure automation code for the AirTrail application, designed to deploy, configure, and monitor the application on Google Kubernetes Engine (GKE) using Ansible.
 
 ## 📖 About the Project
 
 The goal of this project is to automate the lifecycle of the AirTrail web application which is a flight tracking and history service on the cloud. 
+
+For more information, a detailed report its provided along with the code!
 
 **Context & Objectives:**
 - **Zero-Touch Automation**: Installs and configures the entire stack (infrastructure, database, application, monitoring) with minimal manual intervention.
