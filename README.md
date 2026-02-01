@@ -1,7 +1,7 @@
 # DevOps-AirTrail 
 
 > [!NOTE]
-> This is a brief summary of the project. For detailed information, full architecture explanation, and performance analysis, please refer to the [**Project Report**](report.pdf).
+> This is a brief summary of the project. For detailed information, full architecture explanation, and performance analysis, please refer to the [**Project Report**](Report.pdf).
 
 This repository contains the infrastructure automation code for the AirTrail application, designed to deploy, configure, and monitor the application on Google Kubernetes Engine (GKE) using Ansible.
 
